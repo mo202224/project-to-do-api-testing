@@ -1,0 +1,237 @@
+{
+	"info": {
+		"_postman_id": "c499f620-c9c7-4b2f-a06c-511322ae10ac",
+		"name": "ToDoApp",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "8087448"
+	},
+	"item": [
+		{
+			"name": "SignupToAppStoreToken",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Verify the status code is 201\", function () {\r",
+							" pm.response.to.have.status(201);\r",
+							"});\r",
+							"   \r",
+							"pm.test(\"Verify the first name value\", function () {\r",
+							"    var jsonData = pm.response.json();\r",
+							"\r",
+							"const token =jsonData.access_token \r",
+							"pm.environment.set(\"token\", token);\r",
+							"    const FirstName= pm.environment.get(\"firstname\");\r",
+							"    pm.expect(jsonData.firstName).to.eql(FirstName);\r",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"const firstname = pm.variables.replaceIn('{{$randomFirstName}}')\r",
+							"\r",
+							"pm.environment.set(\"firstname\", firstname);"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"email\": \"{{$randomEmail}}\",\r\n    \"password\": \"Pass@123\",\r\n    \"firstName\": \"{{firstname}}\",\r\n    //\"firstName\": \"{{$randomFirstName}}\",repalced with line 4 the varabile from the pre-script  \r\n    \"lastName\": \"Lastname\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://todo.qacart.com/api/v1/users/register",
+					"protocol": "https",
+					"host": [
+						"todo",
+						"qacart",
+						"com"
+					],
+					"path": [
+						"api",
+						"v1",
+						"users",
+						"register"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "AddToDoRecordWithToken",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Verify the name of the To Do Record\", function () {\r",
+							"    var jsonData = pm.response.json();\r",
+							"    const TaskID= jsonData._id\r",
+							"pm.environment.set(\"TaskID\", TaskID);\r",
+							"    pm.expect(jsonData.item).to.eql(\"Newtaks\");\r",
+							"});\r",
+							"\r",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"item\": \"Newtaks\",\r\n    \"isCompleted\": false\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://todo.qacart.com/api/v1/tasks",
+					"protocol": "https",
+					"host": [
+						"todo",
+						"qacart",
+						"com"
+					],
+					"path": [
+						"api",
+						"v1",
+						"tasks"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "MarkRecordAsDone",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Verify the to do record marked as comepleted\", function () {\r",
+							"    var jsonData = pm.response.json();\r",
+							"    pm.expect(jsonData.isCompleted).to.eql(true);\r",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": " {\r\n    \"item\": \"NewtaskOne\",\r\n    \"isCompleted\": true\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://todo.qacart.com/api/v1/tasks/{{TaskID}}",
+					"protocol": "https",
+					"host": [
+						"todo",
+						"qacart",
+						"com"
+					],
+					"path": [
+						"api",
+						"v1",
+						"tasks",
+						"{{TaskID}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "DeleteToDoRecord",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "https://todo.qacart.com/api/v1/tasks/{{TaskID}}",
+					"protocol": "https",
+					"host": [
+						"todo",
+						"qacart",
+						"com"
+					],
+					"path": [
+						"api",
+						"v1",
+						"tasks",
+						"{{TaskID}}"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
